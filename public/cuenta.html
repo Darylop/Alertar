@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Ingresar · AlertAR</title>
+  <meta name="description" content="Creá tu cuenta de AlertAR o ingresá para gestionar tus alertas.">
+  <meta name="theme-color" content="#060a13">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body class="app-fondo">
+  <header class="nav con-fondo">
+    <div class="contenedor">
+      <a class="logo" href="/" aria-label="AlertAR, inicio"><span class="rayo"><svg width="18" height="18" viewBox="0 0 64 64" aria-hidden="true"><path d="M36 4 12 38h16l-4 24 26-34H34z" fill="#ff8a00"/></svg></span><span>Alert<b>AR</b></span></a>
+      <a class="btn btn-sec btn-chico" href="/">← Volver</a>
+    </div>
+  </header>
+
+  <main class="caja-cuenta">
+    <div class="tarjeta">
+      <!-- Ingresar / Registrarme -->
+      <div id="vistaPrincipal">
+        <div class="pestanas" role="tablist" aria-label="Ingresar o crear cuenta">
+          <button role="tab" id="tabIngresar" aria-selected="true" aria-controls="formIngresar">Ingresar</button>
+          <button role="tab" id="tabRegistro" aria-selected="false" aria-controls="formRegistro">Crear cuenta</button>
+        </div>
+
+        <form id="formIngresar" novalidate>
+          <h1 style="font-size:1.6rem">Hola de nuevo 👋</h1>
+          <div class="campo"><label for="iEmail">Email</label><input class="entrada" id="iEmail" name="email" type="email" autocomplete="email" required></div>
+          <div class="campo"><label for="iPass">Contraseña</label><input class="entrada" id="iPass" name="password" type="password" autocomplete="current-password" required></div>
+          <button class="btn btn-bloque" type="submit">Ingresar</button>
+          <p style="text-align:center;margin:16px 0 0"><a href="#" id="linkRecuperar">Olvidé mi contraseña</a></p>
+        </form>
+
+        <form id="formRegistro" class="oculto" novalidate>
+          <h1 style="font-size:1.6rem">Activá tus alertas ⚡</h1>
+          <p style="color:var(--suave);margin-top:-6px">Creá tu cuenta. En el siguiente paso marcás tu dirección y conectás Telegram.</p>
+          <div class="campo"><label for="rNombre">Nombre y apellido</label><input class="entrada" id="rNombre" name="nombre" autocomplete="name" required maxlength="80"></div>
+          <div class="campo"><label for="rEmail">Email</label><input class="entrada" id="rEmail" name="email" type="email" autocomplete="email" required><small>Te escribimos acá si hay algún problema con tu pago.</small></div>
+          <div class="campo"><label for="rTel">Celular <span style="color:var(--tenue);font-weight:400">(opcional)</span></label><input class="entrada" id="rTel" name="telefono" type="tel" autocomplete="tel" inputmode="tel" maxlength="30" placeholder="11 5555 5555"></div>
+          <div class="campo"><label for="rPass">Contraseña</label><input class="entrada" id="rPass" name="password" type="password" autocomplete="new-password" minlength="8" required><small>Mínimo 8 caracteres.</small></div>
+          <label class="casilla"><input type="checkbox" name="acepta" id="rAcepta" required> <span>Acepto los <a href="/terminos" target="_blank">términos y condiciones</a> y la <a href="/privacidad" target="_blank">política de privacidad</a>.</span></label>
+          <button class="btn btn-bloque" type="submit">Crear mi cuenta</button>
+        </form>
+      </div>
+
+      <!-- Recuperar -->
+      <form id="formRecuperar" class="oculto" novalidate>
+        <h1 style="font-size:1.5rem">Recuperar contraseña</h1>
+        <p style="color:var(--suave)">Te mandamos un enlace a tu email para elegir una nueva.</p>
+        <div class="campo"><label for="recEmail">Email</label><input class="entrada" id="recEmail" type="email" autocomplete="email" required></div>
+        <button class="btn btn-bloque" type="submit">Enviar enlace</button>
+        <p style="text-align:center;margin:16px 0 0"><a href="#" data-volver>← Volver a ingresar</a></p>
+      </form>
+
+      <!-- Restablecer (desde el enlace del email) -->
+      <form id="formRestablecer" class="oculto" novalidate>
+        <h1 style="font-size:1.5rem">Elegí tu nueva contraseña</h1>
+        <div class="campo"><label for="resPass">Contraseña nueva</label><input class="entrada" id="resPass" type="password" autocomplete="new-password" minlength="8" required><small>Mínimo 8 caracteres.</small></div>
+        <button class="btn btn-bloque" type="submit">Guardar y entrar</button>
+      </form>
+    </div>
+    <p style="text-align:center;color:var(--tenue);font-size:.85rem;margin-top:18px">🔒 Tus datos viajan cifrados y nunca se comparten.</p>
+  </main>
+
+  <script src="/assets/js/comun.js" defer></script>
+  <script src="/assets/js/cuenta.js" defer></script>
+</body>
+</html>

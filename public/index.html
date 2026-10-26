@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AlertAR · Alertas del SMN para tu casa, por Telegram</title>
+  <meta name="description" content="Te avisamos por Telegram cada alerta del Servicio Meteorológico Nacional que toque un radio de 4 km de tu casa. Con el mapa del área. Sin ruido.">
+  <meta name="theme-color" content="#060a13">
+  <meta property="og:title" content="AlertAR · Que la tormenta no te agarre desprevenido">
+  <meta property="og:description" content="Alertas oficiales del SMN en un radio de 4 km de tu casa, directo a tu Telegram, con mapa.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/assets/img/ejemplo-mapa.webp">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+  <a class="sr" href="#contenido">Saltar al contenido</a>
+
+  <header class="nav" id="nav">
+    <div class="contenedor">
+      <a class="logo" href="/" aria-label="AlertAR, inicio"><span class="rayo"><svg width="18" height="18" viewBox="0 0 64 64" aria-hidden="true"><path d="M36 4 12 38h16l-4 24 26-34H34z" fill="#ff8a00"/></svg></span><span>Alert<b>AR</b></span></a>
+      <nav class="nav-links" aria-label="Secciones">
+        <a href="#como">Cómo funciona</a>
+        <a href="#mensaje">Qué recibís</a>
+        <a href="#precio">Precio</a>
+        <a href="#preguntas">Preguntas</a>
+      </nav>
+      <div class="nav-acciones">
+        <a class="ingresar" href="/cuenta">Ingresar</a>
+        <a class="btn btn-chico" href="/cuenta?modo=registro">Activar alertas</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="contenido">
+    <!-- ============ HERO ============ -->
+    <section class="hero" aria-labelledby="titulo-hero">
+      <canvas id="lluvia" aria-hidden="true"></canvas>
+      <div class="nubes" aria-hidden="true"></div>
+      <div class="destello" id="destello" aria-hidden="true"></div>
+      <div class="contenedor hero-grid">
+        <div>
+          <span class="etiqueta"><span class="punto-vivo" aria-hidden="true"></span> Alertas oficiales del SMN · directo a tu Telegram</span>
+          <h1 id="titulo-hero">Que la tormenta no te agarre <span class="brillo">desprevenido.</span></h1>
+          <p class="bajada">Cuando el Servicio Meteorológico Nacional emite una alerta que toca <strong>un radio de 4&nbsp;km de tu casa</strong>, te llega un mensaje privado con el <strong>mapa del área</strong>. Ni antes, ni para otro barrio: solo cuando te toca a vos.</p>
+          <div class="hero-cta">
+            <a class="btn btn-grande" href="/cuenta?modo=registro">Activar mis alertas <span aria-hidden="true">→</span></a>
+            <a class="btn btn-sec btn-grande" href="#mensaje">Ver cómo llega</a>
+          </div>
+          <ul class="confianza">
+            <li>Revisamos el SMN cada 10 minutos</li>
+            <li>Mensaje privado, sin grupos</li>
+            <li>Cancelás cuando quieras</li>
+          </ul>
+        </div>
+
+        <div class="telefono-zona" aria-label="Ejemplo de una alerta en Telegram">
+          <div class="flotante f1">⚡ Alerta naranja<small>a 1,2 km de tu casa</small></div>
+          <div class="telefono">
+            <div class="pantalla">
+              <div class="isla" aria-hidden="true"></div>
+              <div class="notif" id="notif"><span class="tg-avatar" aria-hidden="true">⚡</span><div><b>AlertAR</b>⚠️ Alerta naranja por tormentas. Tu dirección está dentro del área.</div></div>
+              <div class="tg-barra"><span class="tg-avatar" aria-hidden="true">⚡</span><div class="tg-nombre">AlertAR<small>bot</small></div></div>
+              <div class="tg-chat" id="chat">
+                <div class="burbuja chica" id="b1"><div class="txt">✅ Tu suscripción está activa. Te avisamos apenas haya una alerta para tu zona.<span class="hora">09:12</span></div></div>
+                <div class="escribiendo" id="escribiendo" aria-hidden="true"><i></i><i></i><i></i></div>
+                <div class="burbuja" id="b2">
+                  <img src="/assets/img/ejemplo-mapa.webp" alt="Mapa con el área de una alerta naranja sobre el oeste del Gran Buenos Aires y el radio de 4 km alrededor de la casa del usuario" width="640" height="640" loading="eager">
+                  <div class="txt">⚠️ <b>Alerta naranja por tormentas</b><br>📍 <b>Tu dirección está dentro del área.</b><br><b>Vigencia:</b> hoy 15:00 h a 23:59 h<span class="hora">14:02</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="flotante f2">🗺️ Con el mapa<small>de tu zona, en cada aviso</small></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="cinta" aria-hidden="true">
+      <div class="cinta-pista" id="cinta"></div>
+    </div>
+
+    <!-- ============ PROBLEMA ============ -->
+    <section class="seccion" aria-labelledby="titulo-problema">
+      <div class="contenedor">
+        <p class="frase revelar" id="titulo-problema">Una alerta <em>“para Buenos Aires”</em> no te dice si va a caer granizo <em>en tu cuadra</em>.</p>
+        <div class="comparar">
+          <article class="tarjeta revelar d1">
+            <h3>Hoy</h3>
+            <ul class="lista-check lista-x">
+              <li>Tenés que entrar al sitio del SMN y mirar el mapa vos.</li>
+              <li>Los avisos de redes son genéricos y llegan tarde.</li>
+              <li>Te enterás cuando ya está lloviendo.</li>
+              <li>Si no mirás, no te enterás.</li>
+            </ul>
+          </article>
+          <article class="tarjeta buena revelar d2">
+            <h3>Con AlertAR</h3>
+            <ul class="lista-check">
+              <li>El aviso te llega solo, por mensaje privado de Telegram.</li>
+              <li>Solo si el área de la alerta toca tu radio de 4&nbsp;km.</li>
+              <li>Con el mapa: ves el alcance de un vistazo.</li>
+              <li>Te avisamos también cuando la alerta se levanta.</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ RADAR ============ -->
+    <section class="seccion seccion-alt" aria-labelledby="titulo-radar">
+      <div class="contenedor radar-grid">
+        <div class="revelar">
+          <div class="titulo-seccion" style="text-align:left;margin:0 0 10px">
+            <span class="sobre">Tu radio personal</span>
+            <h2 id="titulo-radar">Vigilamos 4&nbsp;km alrededor de tu casa. Las 24&nbsp;horas.</h2>
+            <p>Marcás tu dirección una vez en el mapa. Cada 10 minutos cruzamos las alertas oficiales con tu punto. Si el área afectada entra en tu radio, te escribimos al instante.</p>
+          </div>
+          <div class="datos-radar">
+            <div class="dato"><b>4 km</b><span>de radio</span></div>
+            <div class="dato"><b>10 min</b><span>entre revisiones</span></div>
+            <div class="dato"><b>24/7</b><span>sin que hagas nada</span></div>
+          </div>
+        </div>
+        <div class="radar revelar d2" id="radar" aria-hidden="true">
+          <div class="radar-aviso">📲 ¡Aviso enviado!</div>
+          <svg viewBox="0 0 500 500">
+            <defs>
+              <radialGradient id="rg" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#4cc9ff" stop-opacity=".16"/><stop offset="1" stop-color="#4cc9ff" stop-opacity="0"/></radialGradient>
+              <linearGradient id="bg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4cc9ff" stop-opacity="0"/><stop offset="1" stop-color="#4cc9ff" stop-opacity=".5"/></linearGradient>
+            </defs>
+            <circle cx="250" cy="250" r="240" fill="url(#rg)" stroke="rgba(76,201,255,.25)"/>
+            <circle cx="250" cy="250" r="180" fill="none" stroke="rgba(76,201,255,.15)"/>
+            <circle cx="250" cy="250" r="120" fill="none" stroke="rgba(76,201,255,.15)"/>
+            <line x1="10" y1="250" x2="490" y2="250" stroke="rgba(76,201,255,.12)"/>
+            <line x1="250" y1="10" x2="250" y2="490" stroke="rgba(76,201,255,.12)"/>
+            <path id="tormenta" d="M0 0" fill="rgba(255,138,0,.35)" stroke="#ff8a00" stroke-width="2"/>
+            <g class="barrido"><path d="M250 250 L490 250 A240 240 0 0 0 420 80 Z" fill="url(#bg)" opacity=".55"/></g>
+            <circle class="anillo-zona" cx="250" cy="250" r="72" fill="rgba(76,201,255,.08)" stroke="#4cc9ff" stroke-width="2.5" stroke-dasharray="8 6"/>
+            <circle cx="250" cy="250" r="9" fill="#ff8a00" stroke="#fff" stroke-width="3"/>
+            <text x="250" y="345" text-anchor="middle" fill="#9aa8c2" font-size="15" font-family="Inter, sans-serif">tu casa · 4 km</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CÓMO FUNCIONA ============ -->
+    <section class="seccion" id="como" aria-labelledby="titulo-como">
+      <div class="contenedor">
+        <div class="titulo-seccion revelar">
+          <span class="sobre">Cómo funciona</span>
+          <h2 id="titulo-como">Listo en 3 minutos. Después, te olvidás.</h2>
+          <p>No hay app para instalar: usás Telegram, que ya tenés (o bajás gratis).</p>
+        </div>
+        <div class="pasos">
+          <article class="tarjeta paso revelar d1"><span class="num" aria-hidden="true">1</span><div class="icono" aria-hidden="true">📍</div><h3>Marcá tu casa</h3><p>Te registrás, escribís tu dirección y confirmás el punto exacto en el mapa. Podés moverlo con el dedo.</p></article>
+          <article class="tarjeta paso revelar d2"><span class="num" aria-hidden="true">2</span><div class="icono" aria-hidden="true">📲</div><h3>Escaneá el QR</h3><p>Abrís nuestro bot de Telegram con un toque o escaneando el código. Queda vinculado a tu cuenta al instante.</p></article>
+          <article class="tarjeta paso revelar d3"><span class="num" aria-hidden="true">3</span><div class="icono" aria-hidden="true">⚡</div><h3>Recibí las alertas</h3><p>Activás la suscripción con Mercado Pago y listo: cada alerta que toque tu zona te llega con el mapa.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ QUÉ RECIBÍS ============ -->
+    <section class="seccion seccion-alt" id="mensaje" aria-labelledby="titulo-mensaje">
+      <div class="contenedor">
+        <div class="titulo-seccion revelar">
+          <span class="sobre">Qué recibís</span>
+          <h2 id="titulo-mensaje">Un mensaje que responde “¿me toca a mí?” en un segundo.</h2>
+        </div>
+        <div class="anatomia">
+          <div class="mensaje-real revelar">
+            <img src="/assets/img/ejemplo-mapa.webp" alt="Ejemplo real del mapa que se envía: área de alerta naranja y el radio de 4 km de la casa" width="640" height="640" loading="lazy">
+            <div class="txt">⚠️ <b>Alerta naranja por tormentas</b><br>📍 <b>Tu dirección (Av. de Mayo 800) está dentro del área de la alerta.</b><br><b>Vigencia:</b> desde mar 14/10 15:00 h hasta mar 14/10 23:59 h (hora de Argentina)<br><br>Área de cobertura afectada por tormentas fuertes, con ráfagas, caída de granizo y abundante lluvia…<br><br><b>Recomendaciones del SMN:</b><br>• Evite salir.<br>• Asegure los objetos que puedan volarse.<br><br>Fuente: SMN – <a href="https://www.smn.gob.ar/alertas" rel="noopener">smn.gob.ar/alertas</a></div>
+          </div>
+          <div class="claves">
+            <div class="clave revelar d1"><span class="ico" aria-hidden="true">🗺️</span><div><h3>El mapa de tu zona</h3><p>El área de la alerta pintada con su color y tu radio de 4&nbsp;km marcado. Se entiende sin leer.</p></div></div>
+            <div class="clave revelar d1"><span class="ico" aria-hidden="true">📍</span><div><h3>Qué tan cerca está</h3><p>Te decimos si tu casa está dentro del área o a cuántos kilómetros del borde.</p></div></div>
+            <div class="clave revelar d2"><span class="ico" aria-hidden="true">🕒</span><div><h3>Vigencia en hora argentina</h3><p>Desde cuándo y hasta cuándo, corregido a la hora local real.</p></div></div>
+            <div class="clave revelar d2"><span class="ico" aria-hidden="true">🛟</span><div><h3>Recomendaciones oficiales</h3><p>Las del SMN, tal cual las publica el organismo. Nosotros no inventamos pronósticos.</p></div></div>
+            <div class="clave revelar d3"><span class="ico" aria-hidden="true">✅</span><div><h3>Aviso de “se levantó”</h3><p>Cuando el SMN deja de informarla para tu zona, también te enterás.</p></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ NIVELES ============ -->
+    <section class="seccion" aria-labelledby="titulo-niveles">
+      <div class="contenedor">
+        <div class="titulo-seccion revelar">
+          <span class="sobre">Los niveles del SMN</span>
+          <h2 id="titulo-niveles">Amarilla, naranja o roja: siempre sabés qué esperar.</h2>
+        </div>
+        <div class="niveles">
+          <article class="tarjeta nivel revelar d1"><span class="chip">AMARILLA</span><h3>Atención</h3><p>Fenómenos potencialmente peligrosos que pueden afectar actividades puntuales. Conviene estar informado.</p></article>
+          <article class="tarjeta nivel naranja revelar d2"><span class="chip">NARANJA</span><h3>Preparate</h3><p>Fenómenos peligrosos que pueden afectar la vida cotidiana y causar daños. Hay que tomar precauciones.</p></article>
+          <article class="tarjeta nivel roja revelar d3"><span class="chip">ROJA</span><h3>Actuá ya</h3><p>Fenómenos excepcionalmente peligrosos. Seguí las indicaciones de las autoridades.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PARA QUIÉN ============ -->
+    <section class="seccion seccion-alt" aria-labelledby="titulo-casos">
+      <div class="contenedor">
+        <div class="titulo-seccion revelar">
+          <span class="sobre">Para quién es</span>
+          <h2 id="titulo-casos">Diez minutos de ventaja cambian todo.</h2>
+        </div>
+        <div class="casos">
+          <article class="tarjeta caso revelar d1"><div class="emoji" aria-hidden="true">🚗</div><h3>Guardá el auto</h3><p>Una alerta de granizo a tiempo es la diferencia entre la cochera y el chapista.</p></article>
+          <article class="tarjeta caso revelar d1"><div class="emoji" aria-hidden="true">👵</div><h3>Cuidá a tu familia</h3><p>Registrá la casa de tus padres y enterate antes que ellos de lo que viene.</p></article>
+          <article class="tarjeta caso revelar d2"><div class="emoji" aria-hidden="true">🏪</div><h3>Protegé tu negocio</h3><p>Persianas, toldos, mercadería y personal: decidí con tiempo.</p></article>
+          <article class="tarjeta caso revelar d3"><div class="emoji" aria-hidden="true">🌾</div><h3>Campo y obra</h3><p>Viento, lluvia intensa o tormentas sobre tu lote o tu obra, sin estar mirando el pronóstico.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PRECIO ============ -->
+    <section class="seccion" id="precio" aria-labelledby="titulo-precio">
+      <div class="contenedor">
+        <div class="titulo-seccion revelar">
+          <span class="sobre">Precio</span>
+          <h2 id="titulo-precio">Un solo plan. Todo incluido.</h2>
+        </div>
+        <div class="precio-caja revelar">
+          <div class="precio">
+            <span class="etiqueta"><span class="punto-vivo" aria-hidden="true"></span> Suscripción mensual</span>
+            <div class="monto"><span data-precio>$4.990</span> <small>/ mes</small></div>
+            <div class="por-dia">Menos de <span data-por-dia>$170</span> por día</div>
+            <ul class="lista-check">
+              <li>Todas las alertas del SMN para tu radio de 4&nbsp;km</li>
+              <li>Mapa de tu zona en cada aviso</li>
+              <li>Mensaje privado por Telegram, al instante</li>
+              <li>Aviso cuando la alerta se levanta</li>
+              <li>Débito automático con Mercado Pago</li>
+              <li>Sin permanencia: cancelás cuando quieras</li>
+            </ul>
+            <a class="btn btn-grande btn-bloque" href="/cuenta?modo=registro">Quiero mis alertas <span aria-hidden="true">→</span></a>
+            <p class="nota">Pagás con tarjeta o dinero en cuenta de Mercado Pago. Precio final en pesos argentinos.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PREGUNTAS ============ -->
+    <section class="seccion seccion-alt" id="preguntas" aria-labelledby="titulo-faq">
+      <div class="contenedor">
+        <div class="titulo-seccion revelar">
+          <span class="sobre">Preguntas frecuentes</span>
+          <h2 id="titulo-faq">Lo que todos preguntan</h2>
+        </div>
+        <div class="faq">
+          <details class="revelar"><summary>¿De dónde salen las alertas?</summary><p>Del Servicio Meteorológico Nacional (SMN), que las publica en su sistema oficial de alertas. AlertAR no pronostica ni interpreta: toma esas alertas, las cruza con tu dirección y te las envía. AlertAR no es un servicio oficial ni está afiliado al SMN.</p></details>
+          <details class="revelar"><summary>¿Por qué un radio de 4 km?</summary><p>Porque las tormentas no respetan límites de barrio. Si el área de la alerta pasa a menos de 4 km de tu casa, preferimos avisarte para que decidas con tiempo.</p></details>
+          <details class="revelar"><summary>¿Necesito instalar algo?</summary><p>Solo Telegram, que es gratis para Android, iPhone y computadora. Los mensajes llegan por un chat privado con nuestro bot: nadie más ve tus avisos ni tus datos.</p></details>
+          <details class="revelar"><summary>¿Cada cuánto revisan?</summary><p>Cada 10 minutos, todos los días. El SMN suele publicar las alertas con horas de anticipación, así que te llegan con tiempo. No sirve para fenómenos instantáneos.</p></details>
+          <details class="revelar"><summary>¿Cómo pago? ¿Puedo cancelar?</summary><p>Con Mercado Pago, en débito automático mensual. Cancelás cuando quieras desde tu panel o desde tu cuenta de Mercado Pago, sin permanencia.</p></details>
+          <details class="revelar"><summary>¿Qué pasa si falla un pago?</summary><p>Te avisamos por correo, por Telegram y en la web. Seguís recibiendo alertas unos días mientras se regulariza; después se pausan y se reactivan solas apenas se acredite el pago.</p></details>
+          <details class="revelar"><summary>¿Puedo cambiar la dirección?</summary><p>Sí, cuando quieras, desde tu panel. Si querés cubrir otra casa (por ejemplo, la de tus padres), creá otra cuenta con otro email.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CIERRE ============ -->
+    <section class="cierre" aria-labelledby="titulo-cierre">
+      <div class="contenedor">
+        <h2 id="titulo-cierre" class="revelar">La próxima alerta ya se está formando.</h2>
+        <p class="revelar d1">Que te encuentre con el auto guardado y las ventanas cerradas.</p>
+        <a class="btn btn-grande revelar d2" href="/cuenta?modo=registro">Activar mis alertas ahora <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pie">
+    <div class="contenedor">
+      <a class="logo" href="/"><span class="rayo"><svg width="18" height="18" viewBox="0 0 64 64" aria-hidden="true"><path d="M36 4 12 38h16l-4 24 26-34H34z" fill="#ff8a00"/></svg></span><span>Alert<b>AR</b></span></a>
+      <nav aria-label="Legales"><a href="/terminos">Términos y condiciones</a><a href="/privacidad">Privacidad</a><a href="/cuenta">Ingresar</a></nav>
+      <p>AlertAR reenvía las alertas oficiales publicadas por el Servicio Meteorológico Nacional (SMN) bajo licencia CC BY 4.0. No es un servicio oficial ni está afiliado al SMN. Ante cualquier diferencia, vale lo que publica el organismo en <a href="https://www.smn.gob.ar/alertas" rel="noopener">smn.gob.ar/alertas</a>. Mapas © colaboradores de OpenStreetMap.</p>
+    </div>
+  </footer>
+
+  <div class="cta-movil" id="ctaMovil"><a class="btn btn-grande" href="/cuenta?modo=registro"><span>Activar mis alertas · <span data-precio>$4.990</span>/mes</span></a></div>
+
+  <script src="/assets/js/landing.js" defer></script>
+</body>
+</html>

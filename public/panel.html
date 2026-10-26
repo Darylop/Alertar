@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mi panel · AlertAR</title>
+  <meta name="theme-color" content="#060a13">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body class="app-fondo">
+  <header class="app-cabecera">
+    <div class="contenedor">
+      <a class="logo" href="/" aria-label="AlertAR, inicio"><span class="rayo"><svg width="18" height="18" viewBox="0 0 64 64" aria-hidden="true"><path d="M36 4 12 38h16l-4 24 26-34H34z" fill="#ff8a00"/></svg></span><span>Alert<b>AR</b></span></a>
+      <div style="display:flex;gap:8px;align-items:center">
+        <a class="btn btn-sec btn-chico oculto" id="linkAdmin" href="/admin">Admin</a>
+        <button class="campana" id="campana" aria-label="Notificaciones" aria-expanded="false"><span aria-hidden="true">🔔</span><span class="cuenta oculto" id="cuentaNotif">0</span></button>
+        <button class="btn btn-sec btn-chico" id="salir">Salir</button>
+      </div>
+    </div>
+  </header>
+  <div class="tarjeta desplegable oculto" id="listaNotif" role="region" aria-label="Notificaciones"></div>
+
+  <main class="app-main">
+    <div class="contenedor" style="max-width:860px">
+      <div id="banners"></div>
+
+      <section class="tarjeta estado-hero" id="estadoHero" aria-live="polite">
+        <div class="estado-icono" id="estadoIcono" aria-hidden="true">⏳</div>
+        <div>
+          <h1 id="estadoTitulo">Cargando…</h1>
+          <p id="estadoTexto"></p>
+          <div class="progreso" id="progreso" aria-hidden="true"><i></i><i></i><i></i></div>
+        </div>
+      </section>
+
+      <div class="pasos-app">
+        <!-- PASO 1: DIRECCIÓN -->
+        <section class="tarjeta paso-app" id="paso1">
+          <header data-alternar><span class="n">1</span><h2>Tu dirección<span class="resumen" id="res1">Marcá el punto que vamos a vigilar</span></h2><span class="flecha" aria-hidden="true">▾</span></header>
+          <div class="cuerpo">
+            <form id="formBuscar" class="buscador" role="search">
+              <label class="sr" for="qDir">Dirección</label>
+              <input class="entrada" id="qDir" placeholder="Calle y altura, localidad (ej.: Av. Rivadavia 5000, CABA)" autocomplete="street-address" required>
+              <button class="btn btn-azul" type="submit">Buscar</button>
+            </form>
+            <ul class="resultados" id="resultados"></ul>
+            <button class="btn btn-sec btn-chico" id="miUbicacion" type="button">📍 Usar mi ubicación actual</button>
+            <div class="mapa" id="mapa" aria-label="Mapa para ubicar tu dirección"></div>
+            <p class="mapa-ayuda">👆 Arrastrá el pin o tocá el mapa para ubicar exactamente tu casa. El círculo muestra tu radio de <b data-radio>4</b> km.</p>
+            <div class="campo"><label for="dirTexto">Dirección confirmada</label><input class="entrada" id="dirTexto" maxlength="200" placeholder="Se completa al elegir el punto; podés corregirla"></div>
+            <label class="casilla"><input type="checkbox" id="dirOk"> <span>Verifiqué que el pin está sobre mi casa.</span></label>
+            <button class="btn btn-bloque" id="guardarDir" type="button">Confirmar esta ubicación</button>
+          </div>
+        </section>
+
+        <!-- PASO 2: TELEGRAM -->
+        <section class="tarjeta paso-app" id="paso2">
+          <header data-alternar><span class="n">2</span><h2>Conectá Telegram<span class="resumen" id="res2">Para recibir las alertas en privado</span></h2><span class="flecha" aria-hidden="true">▾</span></header>
+          <div class="cuerpo">
+            <div id="tgSinVincular">
+              <p style="color:var(--suave)">Las alertas llegan por un chat privado con nuestro bot de Telegram. Si no tenés Telegram, bajalo gratis desde <a href="https://telegram.org/apps" target="_blank" rel="noopener">telegram.org</a>.</p>
+              <button class="btn btn-azul" id="generarQR" type="button">Conectar mi Telegram</button>
+              <div class="qr-zona oculto" id="qrZona" style="margin-top:18px">
+                <div class="qr" id="qr" aria-label="Código QR para abrir el bot de Telegram"></div>
+                <div>
+                  <p><b>En el celular:</b> tocá el botón, se abre Telegram y apretá <b>Iniciar</b>.</p>
+                  <a class="btn btn-bloque" id="abrirTg" href="#" target="_blank" rel="noopener">Abrir Telegram</a>
+                  <p style="margin-top:14px"><b>En la compu:</b> escaneá el código con la cámara del celular.</p>
+                  <div class="esperando"><span class="girador" aria-hidden="true"></span> Esperando que inicies el bot… <span id="botNombre"></span></div>
+                </div>
+              </div>
+            </div>
+            <div id="tgVinculado" class="oculto">
+              <dl class="ficha">
+                <dt>Cuenta</dt><dd id="tgUsuario">—</dd>
+                <dt>Tu ID de Telegram</dt><dd><code id="tgId">—</code></dd>
+              </dl>
+              <div class="mensaje error oculto" id="tgBloqueado">Parece que bloqueaste al bot. Desbloquealo en Telegram para volver a recibir alertas.</div>
+              <div class="acciones">
+                <button class="btn btn-azul btn-chico" id="enviarPrueba" type="button">🧪 Enviarme una alerta de prueba</button>
+                <button class="btn btn-sec btn-chico" id="desvincular" type="button">Desconectar</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- PASO 3: SUSCRIPCIÓN -->
+        <section class="tarjeta paso-app" id="paso3">
+          <header data-alternar><span class="n">3</span><h2>Tu suscripción<span class="resumen" id="res3">Débito mensual con Mercado Pago</span></h2><span class="flecha" aria-hidden="true">▾</span></header>
+          <div class="cuerpo">
+            <div id="pagoSin">
+              <p style="font-size:1.05rem"><b style="font-family:var(--f-titulo);font-size:2rem" id="precio">$4.990</b> <span style="color:var(--suave)">por mes · cancelás cuando quieras</span></p>
+              <div class="campo"><label for="mpEmail">Email de tu cuenta de Mercado Pago</label><input class="entrada" id="mpEmail" type="email" autocomplete="email"><small>Tiene que ser el mismo con el que vas a iniciar sesión en Mercado Pago.</small></div>
+              <button class="btn btn-bloque btn-grande" id="suscribir" type="button">Pagar con Mercado Pago</button>
+              <p style="color:var(--tenue);font-size:.85rem;margin:12px 0 0">Te llevamos a Mercado Pago para autorizar el débito mensual. Al terminar, volvés acá.</p>
+            </div>
+            <div id="pagoCon" class="oculto">
+              <dl class="ficha">
+                <dt>Estado</dt><dd id="pagoEstado">—</dd>
+                <dt>Monto</dt><dd id="pagoMonto">—</dd>
+                <dt>Próximo cobro</dt><dd id="pagoProx">—</dd>
+                <dt>Último cobro</dt><dd id="pagoUlt">—</dd>
+                <dt>Cuenta MP</dt><dd id="pagoMail">—</dd>
+              </dl>
+              <div class="acciones">
+                <button class="btn btn-sec btn-chico" id="sincronizar" type="button">↻ Actualizar estado</button>
+                <a class="btn btn-sec btn-chico" href="https://www.mercadopago.com.ar/subscriptions" target="_blank" rel="noopener">Cambiar medio de pago</a>
+                <button class="btn btn-peligro btn-chico" id="cancelar" type="button">Cancelar suscripción</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- DATOS -->
+        <section class="tarjeta paso-app" id="paso4">
+          <header data-alternar><span class="n">⚙</span><h2>Mis datos<span class="resumen" id="res4">Nombre, teléfono y contraseña</span></h2><span class="flecha" aria-hidden="true">▾</span></header>
+          <div class="cuerpo">
+            <form id="formPerfil">
+              <div class="campo"><label for="pNombre">Nombre</label><input class="entrada" id="pNombre" maxlength="80" required></div>
+              <div class="campo"><label for="pTel">Celular</label><input class="entrada" id="pTel" type="tel" maxlength="30"></div>
+              <div class="campo"><label>Email</label><input class="entrada" id="pEmail" disabled></div>
+              <button class="btn btn-sec" type="submit">Guardar datos</button>
+            </form>
+            <hr style="border:0;border-top:1px solid var(--borde);margin:22px 0">
+            <form id="formPass">
+              <div class="campo"><label for="pActual">Contraseña actual</label><input class="entrada" id="pActual" type="password" autocomplete="current-password" required></div>
+              <div class="campo"><label for="pNueva">Contraseña nueva</label><input class="entrada" id="pNueva" type="password" autocomplete="new-password" minlength="8" required></div>
+              <button class="btn btn-sec" type="submit">Cambiar contraseña</button>
+            </form>
+          </div>
+        </section>
+      </div>
+
+      <p style="color:var(--tenue);font-size:.82rem;margin-top:28px;text-align:center">Las alertas son las oficiales del SMN. AlertAR no es un servicio oficial ni está afiliado al SMN. <a href="/terminos">Términos</a> · <a href="/privacidad">Privacidad</a></p>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
+  <script src="/assets/js/comun.js" defer></script>
+  <script src="/assets/js/panel.js" defer></script>
+</body>
+</html>

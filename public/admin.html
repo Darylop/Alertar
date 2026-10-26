@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Administración · AlertAR</title>
+  <meta name="theme-color" content="#060a13">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body class="app-fondo">
+  <header class="app-cabecera">
+    <div class="contenedor">
+      <a class="logo" href="/admin"><span>Alert<b>AR</b></span> <span style="font-size:.8rem;color:var(--suave);font-family:var(--f-texto);font-weight:600;margin-left:4px">ADMIN</span></a>
+      <div style="display:flex;gap:8px">
+        <a class="btn btn-sec btn-chico" href="/panel">Mi panel</a>
+        <button class="btn btn-sec btn-chico" id="salir">Salir</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="contenedor">
+      <div class="metricas" id="metricas"></div>
+
+      <div class="tabs" role="tablist">
+        <button role="tab" aria-selected="true" data-tab="clientes">👥 Clientes</button>
+        <button role="tab" aria-selected="false" data-tab="mapa">🗺️ Mapa</button>
+        <button role="tab" aria-selected="false" data-tab="sistema">⚙️ Sistema y alertas</button>
+        <button role="tab" aria-selected="false" data-tab="config">💲 Precio</button>
+      </div>
+
+      <!-- CLIENTES -->
+      <section data-panel="clientes">
+        <div class="barra-herr">
+          <input class="entrada" id="buscar" type="search" placeholder="Buscar por nombre, email, dirección o teléfono" aria-label="Buscar clientes">
+          <select class="entrada" id="filtro" aria-label="Filtrar por estado">
+            <option value="">Todos</option>
+            <option value="recibe">Recibiendo alertas</option>
+            <option value="activo">Al día</option>
+            <option value="moroso">Pago fallido</option>
+            <option value="pendiente">Pago pendiente</option>
+            <option value="sin_suscripcion">Sin suscripción</option>
+            <option value="cancelado">Cancelados</option>
+            <option value="cortesia">Cortesía</option>
+            <option value="incompleto">Registro incompleto</option>
+          </select>
+          <a class="btn btn-sec" href="/api/admin?accion=csv" download>⬇ Exportar CSV</a>
+        </div>
+        <p style="color:var(--suave);font-size:.88rem" id="conteo"></p>
+        <div class="tabla-envoltura de-escritorio">
+          <table class="tabla">
+            <thead><tr><th>Cliente</th><th>Dirección</th><th>Telegram</th><th>Pago</th><th>Próx. cobro</th><th>Alertas</th><th>Alta</th></tr></thead>
+            <tbody id="filas"></tbody>
+          </table>
+        </div>
+        <div class="tarjetas-movil" id="tarjetas"></div>
+      </section>
+
+      <!-- MAPA -->
+      <section data-panel="mapa" class="oculto">
+        <p style="color:var(--suave);font-size:.9rem;margin-top:14px">🟢 recibe alertas · 🟠 pago fallido · 🟡 incompleto · ⚪ sin pago. Los círculos muestran el radio vigilado.</p>
+        <div class="mapa" id="mapaClientes" style="height:70vh"></div>
+      </section>
+
+      <!-- SISTEMA -->
+      <section data-panel="sistema" class="oculto">
+        <div class="grilla-2" style="margin-top:14px">
+          <div class="tarjeta">
+            <h3>Última revisión del SMN</h3>
+            <div id="ultima">—</div>
+            <div class="acciones"><button class="btn btn-sec btn-chico" id="revisarAhora">▶ Revisar ahora</button></div>
+          </div>
+          <div class="tarjeta">
+            <h3>Bot de Telegram</h3>
+            <div id="tgInfo">—</div>
+            <div class="acciones"><button class="btn btn-azul btn-chico" id="conectarWebhook">🔗 Conectar / reconectar el bot</button></div>
+          </div>
+          <div class="tarjeta">
+            <h3>Alertas vigentes con envíos</h3>
+            <div id="activas">—</div>
+          </div>
+          <div class="tarjeta">
+            <h3>Configuración</h3>
+            <div id="variables">—</div>
+            <h3 style="margin-top:18px">Revisión diaria de pagos</h3>
+            <div id="diario">—</div>
+          </div>
+        </div>
+        <div class="tarjeta" style="margin-top:16px">
+          <h3>Historial de alertas</h3>
+          <div class="tabla-envoltura"><table class="tabla" style="min-width:640px"><thead><tr><th>Alerta</th><th>Vigencia</th><th>Enviados</th><th>Cierre</th></tr></thead><tbody id="historial"></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- CONFIG -->
+      <section data-panel="config" class="oculto">
+        <form class="tarjeta" id="formConfig" style="max-width:520px;margin-top:14px">
+          <div class="campo"><label for="cPrecio">Precio mensual (ARS)</label><input class="entrada" id="cPrecio" type="number" min="100" step="1" required><small>Se aplica a las suscripciones nuevas. Las existentes mantienen su monto en Mercado Pago.</small></div>
+          <div class="campo"><label for="cGracia">Días de gracia tras un pago fallido</label><input class="entrada" id="cGracia" type="number" min="0" max="30" step="1" required><small>Durante esos días el cliente sigue recibiendo alertas mientras se le avisa del problema.</small></div>
+          <button class="btn" type="submit">Guardar</button>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <div class="cajon oculto" id="cajon" role="dialog" aria-modal="true" aria-labelledby="cajonTitulo"><div id="cajonCuerpo"></div></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
+  <script src="/assets/js/comun.js" defer></script>
+  <script src="/assets/js/admin.js" defer></script>
+</body>
+</html>
